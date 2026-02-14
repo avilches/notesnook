@@ -179,6 +179,48 @@ docker compose restart notesnook-web
 docker compose ps
 ```
 
+## Fork de BeardedTek
+
+Existe un [fork de BeardedTek](https://github.com/beardedtek/notesnook) que modifica cómo la web app lee las URLs de los servidores.
+
+### ¿Qué cambia?
+
+El repo oficial compila las URLs **en tiempo de build** (se "queman" en el código):
+```dockerfile
+ARG API_HOST=http://localhost:5264
+ENV NN_API_HOST=${API_HOST}
+RUN npm run build:web  # Las URLs quedan fijas en el bundle
+```
+
+El fork de BeardedTek modifica `apps/web/src/common/db.ts` para leer las URLs **en runtime** desde variables de entorno con prefijo `NN_`:
+```javascript
+// Busca: 1) env NN_API_HOST, 2) config usuario, 3) valor por defecto
+const API_HOST = getServerUrl("API_HOST", "https://api.notesnook.com");
+```
+
+### ¿Por qué no lo usamos?
+
+Nuestro `app/Dockerfile` ya pasa las URLs como argumentos de build:
+```dockerfile
+ARG API_HOST
+ENV NN_API_HOST=${API_HOST}
+RUN npm run build:web
+```
+
+Esto funciona porque:
+- Tenemos **una sola instancia** (self-hosted personal)
+- Las URLs se definen en `.env` y se pasan al build
+- Si cambian las URLs, simplemente recompilamos
+
+### ¿Cuándo sí usarlo?
+
+El fork de BeardedTek sería útil si:
+- Quisieras **una imagen para múltiples entornos** (dev, staging, prod)
+- Necesitaras cambiar URLs **sin recompilar**
+- Distribuyeras la imagen a terceros
+
+Para self-hosting típico, el repo oficial + nuestro Dockerfile es suficiente.
+
 ## Backups
 
 Los datos están en volúmenes Docker:
