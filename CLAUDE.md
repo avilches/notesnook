@@ -109,6 +109,47 @@ s3.tudominio.com {
 }
 ```
 
+## Actualización
+
+```bash
+./update.sh
+```
+
+Este script:
+1. Descarga las últimas imágenes oficiales de backend (`streetwriters/*`)
+2. Recompila la web app desde el [repo oficial](https://github.com/streetwriters/notesnook) (sin caché)
+3. Reinicia todos los servicios
+
+### Actualización manual
+
+```bash
+# Solo backends (rápido)
+docker compose pull && docker compose up -d
+
+# Solo web app (lento, recompila)
+docker compose build --no-cache notesnook-web && docker compose up -d notesnook-web
+```
+
+## Arquitectura
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        IMÁGENES                             │
+├─────────────────────────────────────────────────────────────┤
+│  Backend (oficiales de Docker Hub)                          │
+│  ├── streetwriters/notesnook-sync    → notesnook-server     │
+│  ├── streetwriters/identity          → identity-server      │
+│  ├── streetwriters/sse               → sse-server           │
+│  ├── streetwriters/monograph         → monograph-server     │
+│  ├── mongo:7.0.12                    → notesnook-db         │
+│  └── minio/minio                     → notesnook-s3         │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend (build local desde source)                        │
+│  └── github.com/streetwriters/notesnook → notesnook-web     │
+│      (compilado con SELF_HOSTED=true)                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## Comandos Útiles
 
 ```bash
