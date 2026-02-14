@@ -14,18 +14,19 @@ RUN git clone --depth=1 https://github.com/streetwriters/notesnook.git .
 RUN npm ci
 
 # Build-time arguments for server URLs
-ARG API_HOST
-ARG AUTH_HOST
-ARG SSE_HOST
-ARG MONOGRAPH_HOST
-ARG SELF_HOSTED=true
+ARG NN_API_HOST=http://localhost:5264
+ARG NN_AUTH_HOST=http://localhost:8264
+ARG NN_SSE_HOST=http://localhost:7264
+ARG NN_MONOGRAPH_HOST=http://localhost:6264
 
-# Set environment variables for build
-ENV NN_API_HOST=${API_HOST}
-ENV NN_AUTH_HOST=${AUTH_HOST}
-ENV NN_SSE_HOST=${SSE_HOST}
-ENV NN_MONOGRAPH_HOST=${MONOGRAPH_HOST}
-ENV SELF_HOSTED=${SELF_HOSTED}
+# Patch db.ts to use our self-hosted URLs instead of Notesnook.com
+RUN sed -i "s|API_HOST: \"https://api.notesnook.com\"|API_HOST: \"${NN_API_HOST}\"|g" apps/web/src/common/db.ts && \
+    sed -i "s|AUTH_HOST: \"https://auth.streetwriters.co\"|AUTH_HOST: \"${NN_AUTH_HOST}\"|g" apps/web/src/common/db.ts && \
+    sed -i "s|SSE_HOST: \"https://events.streetwriters.co\"|SSE_HOST: \"${NN_SSE_HOST}\"|g" apps/web/src/common/db.ts && \
+    sed -i "s|MONOGRAPH_HOST: \"https://monogr.ph\"|MONOGRAPH_HOST: \"${NN_MONOGRAPH_HOST}\"|g" apps/web/src/common/db.ts
+
+# Verify the patch was applied
+RUN grep -A 8 "db.host" apps/web/src/common/db.ts
 
 # Build the web app
 RUN npm run build:web
