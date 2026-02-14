@@ -51,6 +51,13 @@ docker compose up -d --build
 - **App**: http://localhost:3000
 - **MailHog**: http://localhost:8025 (ver emails de verificación)
 
+### 4. Registro
+
+1. Crear cuenta en http://localhost:3000
+2. Te pedirá un código de 6 dígitos
+3. Abrir http://localhost:8025 (MailHog)
+4. El email con el código estará ahí
+
 ## Migración a VPS
 
 ### 1. Actualizar `.env`
