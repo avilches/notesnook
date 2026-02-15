@@ -3,6 +3,7 @@
 ## Reglas
 
 - **Documentar explicaciones**: Cuando el usuario pregunte algo y la respuesta sea una explicación de cómo funciona Notesnook (sync, encriptación, backups, etc.), añadir esa información al `README.md`. El README debe servir como manual de usuario y resolución de dudas.
+- **Sin Co-Authored-By**: Nunca incluir la línea "Co-Authored-By: Claude" en los mensajes de commit.
 
 ## Estructura del proyecto
 
